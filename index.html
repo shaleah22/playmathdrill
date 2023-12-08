@@ -50,7 +50,6 @@
 <input type="text" id="answer" placeholder="Your answer" oninput="checkAnswer()" autofocus>
 <div id="timer">Time elapsed: <span id="time">0</span> seconds</div>
 <div id="result"></div>
-<button id="retryButton" class="level-button" onclick="retryLevel()">Try this level again</button>
 <button id="levelButton" class="level-button" onclick="nextLevel()">Congratulations. Click here to move to level <span id="level"></span></button>
 
 <script>
@@ -98,13 +97,17 @@
         timer = setInterval(() => {
             timeElapsed++;
             document.getElementById('time').innerText = timeElapsed;
+
+            if (timeElapsed === 40) {
+                clearInterval(timer);
+                endDrill();
+            }
         }, 1000);
     }
 
     function checkAnswer() {
         const userAnswer = parseInt(document.getElementById('answer').value);
         const resultElement = document.getElementById('result');
-        const retryButton = document.getElementById('retryButton');
         const levelButton = document.getElementById('levelButton');
 
         if (!timerStarted) {
@@ -119,7 +122,6 @@
             correctAnswers++;
             currentQuestionIndex++;
             resultElement.style.display = 'none';
-            retryButton.style.display = 'none';
 
             if (currentQuestionIndex < mathFacts.length) {
                 displayQuestion();
@@ -130,35 +132,11 @@
             // If the answer is incorrect, display "Try again" message
             resultElement.innerText = 'Try again.';
             resultElement.style.display = 'block';
-            retryButton.style.display = 'block';
         }
-    }
-
-    function retryLevel() {
-        // Reset variables for the current level
-        currentQuestionIndex = 0;
-        correctAnswers = 0;
-        timerStarted = false;
-
-        // Stop the timer
-        clearInterval(timer);
-
-        // Reset the timer display
-        document.getElementById('time').innerText = '0';
-
-        // Hide the retry button
-        document.getElementById('retryButton').style.display = 'none';
-
-        // Display the first question of the current level
-        displayQuestion();
-
-        // Start the timer for the current level
-        startTimer();
     }
 
     function endDrill() {
         const resultElement = document.getElementById('result');
-        const retryButton = document.getElementById('retryButton');
         const levelButton = document.getElementById('levelButton');
 
         if ((correctAnswers / mathFacts.length) === 1) {
@@ -175,7 +153,6 @@
             // Display the final result if not 100%
             resultElement.innerText = `Your grade: ${((correctAnswers / mathFacts.length) * 100).toFixed(2)}%`;
             resultElement.style.display = 'block';
-            retryButton.style.display = 'block';
         }
     }
 
@@ -214,9 +191,6 @@
 
             // Hide the level button
             document.getElementById('levelButton').style.display = 'none';
-
-            // Hide the retry button
-            document.getElementById('retryButton').style.display = 'none';
 
             // Reset the timer display
             document.getElementById('time').innerText = '0';
