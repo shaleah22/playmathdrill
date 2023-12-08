@@ -21,13 +21,6 @@
             margin-bottom: 20px;
         }
 
-        #timer {
-            font-size: 18px;
-            color: red;
-            margin-bottom: 20px;
-            display: none;
-        }
-
         #result {
             font-size: 20px;
             font-weight: bold;
@@ -48,7 +41,6 @@
 
 <div id="question"></div>
 <input type="text" id="answer" placeholder="Your answer" oninput="checkAnswer()" autofocus>
-<div id="timer">Time elapsed: <span id="time">0</span> seconds</div>
 <div id="result"></div>
 <button id="levelButton" class="level-button" onclick="nextLevel()">Congratulations. Click here to move to level <span id="level"></span></button>
 
@@ -93,10 +85,8 @@
 
     function startTimer() {
         let timeElapsed = 0;
-        document.getElementById('time').innerText = timeElapsed;
         timer = setInterval(() => {
             timeElapsed++;
-            document.getElementById('time').innerText = timeElapsed;
 
             if (timeElapsed === 40) {
                 clearInterval(timer);
@@ -113,7 +103,6 @@
         if (!timerStarted) {
             // Start the timer when the user enters the first answer
             timerStarted = true;
-            document.getElementById('timer').style.display = 'block';
             startTimer();
         }
 
@@ -154,50 +143,33 @@
             resultElement.innerText = `Your grade: ${((correctAnswers / mathFacts.length) * 100).toFixed(2)}%`;
             resultElement.style.display = 'block';
         }
+
+        // Hide the question and answer elements
+        document.getElementById('question').style.display = 'none';
+        document.getElementById('answer').style.display = 'none';
     }
 
     function nextLevel() {
-        // Only proceed to the next level if the user earned 100%
-        if ((correctAnswers / mathFacts.length) === 1) {
-            // Increment the level and reset variables for the next level
-            level++;
-            currentQuestionIndex = 0;
-            correctAnswers = 0;
-            timerStarted = false;
+        // Increment the level
+        level++;
+        localStorage.setItem('level', level);
 
-            // Stop the timer
-            clearInterval(timer);
+        // Reset variables for the next level
+        currentQuestionIndex = 0;
+        correctAnswers = 0;
+        timerStarted = false;
 
-            // Adjust math facts for the next level
-            if (level === 2) {
-                mathFacts.push({ question: "15 x 6", answer: 90 });
-                mathFacts = mathFacts.filter(fact => fact.question !== "7 x 12");
-            } else if (level === 3) {
-                mathFacts.push({ question: "15 x 8", answer: 120 });
-                mathFacts = mathFacts.filter(fact => fact.question !== "8 x 12");
-            } else if (level === 4) {
-                mathFacts.push({ question: "15 x 9", answer: 135 });
-                mathFacts = mathFacts.filter(fact => fact.question !== "11 x 12");
-            } else if (level === 5) {
-                mathFacts.push({ question: "15 x 11", answer: 165 });
-                mathFacts = mathFacts.filter(fact => fact.question !== "14 x 4");
-            }
+        // Shuffle the math facts for the next level
+        shuffleArray(mathFacts);
 
-            // Shuffle the math facts for the next level
-            shuffleArray(mathFacts);
+        // Display the first question of the next level
+        displayQuestion();
 
-            // Display the first question of the next level
-            displayQuestion();
+        // Hide the level button
+        levelButton.style.display = 'none';
 
-            // Hide the level button
-            document.getElementById('levelButton').style.display = 'none';
-
-            // Reset the timer display
-            document.getElementById('time').innerText = '0';
-
-            // Start the timer for the next level
-            startTimer();
-        }
+        // Start the timer for the next level
+        startTimer();
     }
 
     // Initial setup
