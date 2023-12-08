@@ -94,6 +94,7 @@
 
     function startTimer() {
         let timeLeft = 60;
+        document.getElementById('time').innerText = timeLeft;
         timer = setInterval(() => {
             timeLeft--;
             document.getElementById('time').innerText = timeLeft;
@@ -155,6 +156,9 @@
         currentQuestionIndex = 0;
         correctAnswers = 0;
         timerStarted = false;
+
+        // Stop the timer
+        clearInterval(timer);
 
         // Add a new "16" fact and delete an old fact
         mathFacts.push({ question: `16 x ${level}`, answer: 16 * level });
