@@ -136,9 +136,6 @@
 
     function endDrill() {
         const resultElement = document.getElementById('result');
-        resultElement.innerText = `Your grade: ${((correctAnswers / mathFacts.length) * 100).toFixed(2)}%`;
-        resultElement.style.display = 'block';
-
         if ((correctAnswers / mathFacts.length) === 1) {
             // Display the level button if the user earned 100%
             document.getElementById('levelButton').innerText = `Congratulations. Click here to move to level ${level}`;
@@ -149,6 +146,10 @@
 
             // Clear the timer
             clearInterval(timer);
+        } else {
+            // Display the final result if not 100%
+            resultElement.innerText = `Your grade: ${((correctAnswers / mathFacts.length) * 100).toFixed(2)}%`;
+            resultElement.style.display = 'block';
         }
     }
 
