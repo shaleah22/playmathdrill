@@ -139,45 +139,50 @@
         resultElement.innerText = `Your grade: ${((correctAnswers / mathFacts.length) * 100).toFixed(2)}%`;
         resultElement.style.display = 'block';
 
-        // Display the level button
-        document.getElementById('levelButton').innerText = `Congratulations. Click here to move to level ${level}`;
-        document.getElementById('levelButton').style.display = 'block';
+        if ((correctAnswers / mathFacts.length) === 1) {
+            // Display the level button if the user earned 100%
+            document.getElementById('levelButton').innerText = `Congratulations. Click here to move to level ${level}`;
+            document.getElementById('levelButton').style.display = 'block';
 
-        // Save the current level to local storage
-        localStorage.setItem('level', level);
+            // Save the current level to local storage
+            localStorage.setItem('level', level);
 
-        // Clear the timer
-        clearInterval(timer);
+            // Clear the timer
+            clearInterval(timer);
+        }
     }
 
     function nextLevel() {
-        // Increment the level and reset variables for the next level
-        level++;
-        currentQuestionIndex = 0;
-        correctAnswers = 0;
-        timerStarted = false;
+        // Only proceed to the next level if the user earned 100%
+        if ((correctAnswers / mathFacts.length) === 1) {
+            // Increment the level and reset variables for the next level
+            level++;
+            currentQuestionIndex = 0;
+            correctAnswers = 0;
+            timerStarted = false;
 
-        // Stop the timer
-        clearInterval(timer);
+            // Stop the timer
+            clearInterval(timer);
 
-        // Add a new "16" fact and delete an old fact
-        mathFacts.push({ question: `16 x ${level}`, answer: 16 * level });
-        mathFacts.shift();
+            // Add a new "16" fact and delete an old fact
+            mathFacts.push({ question: `16 x ${level}`, answer: 16 * level });
+            mathFacts.shift();
 
-        // Shuffle the math facts for the next level
-        shuffleArray(mathFacts);
+            // Shuffle the math facts for the next level
+            shuffleArray(mathFacts);
 
-        // Display the first question of the next level
-        displayQuestion();
+            // Display the first question of the next level
+            displayQuestion();
 
-        // Hide the level button
-        document.getElementById('levelButton').style.display = 'none';
+            // Hide the level button
+            document.getElementById('levelButton').style.display = 'none';
 
-        // Reset the timer
-        document.getElementById('time').innerText = '60';
+            // Reset the timer
+            document.getElementById('time').innerText = '60';
 
-        // Start the timer for the next level
-        startTimer();
+            // Start the timer for the next level
+            startTimer();
+        }
     }
 
     // Initial setup
