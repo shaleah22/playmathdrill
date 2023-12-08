@@ -97,9 +97,9 @@
         document.getElementById('time').innerText = timeLeft;
         timer = setInterval(() => {
             timeLeft--;
-            document.getElementById('time').innerText = timeLeft;
-
-            if (timeLeft === 0) {
+            if (timeLeft >= 0) {
+                document.getElementById('time').innerText = timeLeft;
+            } else {
                 clearInterval(timer);
                 endDrill();
             }
