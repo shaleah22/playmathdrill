@@ -48,12 +48,14 @@
 
 <div id="question"></div>
 <input type="text" id="answer" placeholder="Your answer" oninput="checkAnswer()" autofocus>
-<div id="timer">Time left: <span id="time">60</span> seconds</div>
+<div id="timer">Time elapsed: <span id="time">0</span> seconds</div>
 <div id="result"></div>
+<button id="retryButton" class="level-button" onclick="retryLevel()">Try this level again</button>
 <button id="levelButton" class="level-button" onclick="nextLevel()">Congratulations. Click here to move to level <span id="level"></span></button>
 
 <script>
     let mathFacts = [
+        { question: "5 x 12", answer: 60 },
         { question: "7 x 12", answer: 84 },
         { question: "8 x 12", answer: 96 },
         { question: "9 x 12", answer: 108 },
@@ -65,9 +67,7 @@
         { question: "14 x 6", answer: 84 },
         { question: "14 x 7", answer: 98 },
         { question: "14 x 8", answer: 112 },
-        { question: "14 x 9", answer: 126 },
-        { question: "15 x 5", answer: 75 },
-        { question: "15 x 7", answer: 105 },
+        { question: "14 x 9", answer: 126 }
     ];
 
     let currentQuestionIndex = 0;
@@ -93,22 +93,19 @@
     }
 
     function startTimer() {
-        let timeLeft = 60;
-        document.getElementById('time').innerText = timeLeft;
+        let timeElapsed = 0;
+        document.getElementById('time').innerText = timeElapsed;
         timer = setInterval(() => {
-            timeLeft--;
-            if (timeLeft >= 0) {
-                document.getElementById('time').innerText = timeLeft;
-            } else {
-                clearInterval(timer);
-                endDrill();
-            }
+            timeElapsed++;
+            document.getElementById('time').innerText = timeElapsed;
         }, 1000);
     }
 
     function checkAnswer() {
         const userAnswer = parseInt(document.getElementById('answer').value);
         const resultElement = document.getElementById('result');
+        const retryButton = document.getElementById('retryButton');
+        const levelButton = document.getElementById('levelButton');
 
         if (!timerStarted) {
             // Start the timer when the user enters the first answer
@@ -122,6 +119,8 @@
             correctAnswers++;
             currentQuestionIndex++;
             resultElement.style.display = 'none';
+            retryButton.style.display = 'none';
+
             if (currentQuestionIndex < mathFacts.length) {
                 displayQuestion();
             } else {
@@ -131,15 +130,41 @@
             // If the answer is incorrect, display "Try again" message
             resultElement.innerText = 'Try again.';
             resultElement.style.display = 'block';
+            retryButton.style.display = 'block';
         }
+    }
+
+    function retryLevel() {
+        // Reset variables for the current level
+        currentQuestionIndex = 0;
+        correctAnswers = 0;
+        timerStarted = false;
+
+        // Stop the timer
+        clearInterval(timer);
+
+        // Reset the timer display
+        document.getElementById('time').innerText = '0';
+
+        // Hide the retry button
+        document.getElementById('retryButton').style.display = 'none';
+
+        // Display the first question of the current level
+        displayQuestion();
+
+        // Start the timer for the current level
+        startTimer();
     }
 
     function endDrill() {
         const resultElement = document.getElementById('result');
+        const retryButton = document.getElementById('retryButton');
+        const levelButton = document.getElementById('levelButton');
+
         if ((correctAnswers / mathFacts.length) === 1) {
             // Display the level button if the user earned 100%
-            document.getElementById('levelButton').innerText = `Congratulations. Click here to move to level ${level}`;
-            document.getElementById('levelButton').style.display = 'block';
+            levelButton.innerText = `Congratulations. Click here to move to level ${level}`;
+            levelButton.style.display = 'block';
 
             // Save the current level to local storage
             localStorage.setItem('level', level);
@@ -150,6 +175,7 @@
             // Display the final result if not 100%
             resultElement.innerText = `Your grade: ${((correctAnswers / mathFacts.length) * 100).toFixed(2)}%`;
             resultElement.style.display = 'block';
+            retryButton.style.display = 'block';
         }
     }
 
@@ -165,9 +191,20 @@
             // Stop the timer
             clearInterval(timer);
 
-            // Add a new "16" fact and delete an old fact
-            mathFacts.push({ question: `16 x ${level}`, answer: 16 * level });
-            mathFacts.shift();
+            // Adjust math facts for the next level
+            if (level === 2) {
+                mathFacts.push({ question: "15 x 6", answer: 90 });
+                mathFacts = mathFacts.filter(fact => fact.question !== "7 x 12");
+            } else if (level === 3) {
+                mathFacts.push({ question: "15 x 8", answer: 120 });
+                mathFacts = mathFacts.filter(fact => fact.question !== "8 x 12");
+            } else if (level === 4) {
+                mathFacts.push({ question: "15 x 9", answer: 135 });
+                mathFacts = mathFacts.filter(fact => fact.question !== "11 x 12");
+            } else if (level === 5) {
+                mathFacts.push({ question: "15 x 11", answer: 165 });
+                mathFacts = mathFacts.filter(fact => fact.question !== "14 x 4");
+            }
 
             // Shuffle the math facts for the next level
             shuffleArray(mathFacts);
@@ -178,8 +215,11 @@
             // Hide the level button
             document.getElementById('levelButton').style.display = 'none';
 
-            // Reset the timer
-            document.getElementById('time').innerText = '60';
+            // Hide the retry button
+            document.getElementById('retryButton').style.display = 'none';
+
+            // Reset the timer display
+            document.getElementById('time').innerText = '0';
 
             // Start the timer for the next level
             startTimer();
