@@ -139,10 +139,16 @@
 
     function endDrill() {
         const resultElement = document.getElementById('result');
-        resultElement.innerText = `Your grade: ${((correctAnswers / mathFacts.length) * 100).toFixed(2)}%`;
+        const score = (correctAnswers / mathFacts.length) * 100;
+        resultElement.innerText = `Your grade: ${score.toFixed(2)}%`;
         resultElement.style.display = 'block';
-        document.getElementById('levelButton').style.display = 'block';
-        document.getElementById('level').innerText = level + 1;
+
+        // Only show the level-up button if the user scored 100%
+        if (score === 100) {
+            document.getElementById('levelButton').style.display = 'block';
+            document.getElementById('level').innerText = level + 1;
+        }
+
         localStorage.setItem('level', level);
         clearInterval(timer);
     }
