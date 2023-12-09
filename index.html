@@ -21,6 +21,13 @@
             margin-bottom: 20px;
         }
 
+        #timer {
+            font-size: 18px;
+            color: red;
+            margin-bottom: 20px;
+            display: none;
+        }
+
         #result {
             font-size: 20px;
             font-weight: bold;
@@ -41,12 +48,12 @@
 
 <div id="question"></div>
 <input type="text" id="answer" placeholder="Your answer" oninput="checkAnswer()" autofocus>
+<div id="timer">Time left: <span id="time">40</span> seconds</div>
 <div id="result"></div>
-<button id="levelButton" class="level-button" onclick="nextLevel()">Congratulations. Click here to move to level <span id="level"></span></button>
+<button id="levelButton" class="level-button" onclick="nextLevel()">Congratulations. Click here to move to level <span id="level">2</span></button>
 
 <script>
     let mathFacts = [
-        { question: "5 x 12", answer: 60 },
         { question: "7 x 12", answer: 84 },
         { question: "8 x 12", answer: 96 },
         { question: "9 x 12", answer: 108 },
@@ -58,7 +65,18 @@
         { question: "14 x 6", answer: 84 },
         { question: "14 x 7", answer: 98 },
         { question: "14 x 8", answer: 112 },
-        { question: "14 x 9", answer: 126 }
+        { question: "14 x 9", answer: 126 },
+        { question: "15 x 5", answer: 75 },
+        { question: "15 x 7", answer: 105 }
+    ];
+
+    let newFacts = [
+        { question: "17 x 2", answer: 34 },
+        { question: "17 x 3", answer: 51 },
+        { question: "25 x 3", answer: 75 },
+        { question: "25 x 6", answer: 150 },
+        { question: "18 x 2", answer: 36 },
+        { question: "18 x 3", answer: 54 }
     ];
 
     let currentQuestionIndex = 0;
@@ -66,8 +84,8 @@
     let timerStarted = false;
     let timer;
     let level = parseInt(localStorage.getItem('level')) || 1;
+    let newFactIndex = 0;
 
-    // Function to shuffle an array
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -75,20 +93,19 @@
         }
     }
 
-    // Shuffle the math facts before starting the drill
-    shuffleArray(mathFacts);
-
     function displayQuestion() {
         document.getElementById('question').innerText = mathFacts[currentQuestionIndex].question;
         document.getElementById('answer').value = '';
     }
 
     function startTimer() {
-        let timeElapsed = 0;
+        let timeLeft = 40;
+        document.getElementById('time').innerText = timeLeft;
         timer = setInterval(() => {
-            timeElapsed++;
+            timeLeft--;
+            document.getElementById('time').innerText = timeLeft;
 
-            if (timeElapsed === 40) {
+            if (timeLeft === 0) {
                 clearInterval(timer);
                 endDrill();
             }
@@ -98,27 +115,23 @@
     function checkAnswer() {
         const userAnswer = parseInt(document.getElementById('answer').value);
         const resultElement = document.getElementById('result');
-        const levelButton = document.getElementById('levelButton');
 
         if (!timerStarted) {
-            // Start the timer when the user enters the first answer
             timerStarted = true;
+            document.getElementById('timer').style.display = 'block';
             startTimer();
         }
 
         if (userAnswer === mathFacts[currentQuestionIndex].answer) {
-            // If the answer is correct, move on to the next question
             correctAnswers++;
             currentQuestionIndex++;
             resultElement.style.display = 'none';
-
             if (currentQuestionIndex < mathFacts.length) {
                 displayQuestion();
             } else {
                 endDrill();
             }
         } else {
-            // If the answer is incorrect, display "Try again" message
             resultElement.innerText = 'Try again.';
             resultElement.style.display = 'block';
         }
@@ -126,53 +139,39 @@
 
     function endDrill() {
         const resultElement = document.getElementById('result');
-        const levelButton = document.getElementById('levelButton');
-
-        if ((correctAnswers / mathFacts.length) === 1) {
-            // Display the level button if the user earned 100%
-            levelButton.innerText = `Congratulations. Click here to move to level ${level}`;
-            levelButton.style.display = 'block';
-
-            // Save the current level to local storage
-            localStorage.setItem('level', level);
-
-            // Clear the timer
-            clearInterval(timer);
-        } else {
-            // Display the final result if not 100%
-            resultElement.innerText = `Your grade: ${((correctAnswers / mathFacts.length) * 100).toFixed(2)}%`;
-            resultElement.style.display = 'block';
-        }
-
-        // Hide the question and answer elements
-        document.getElementById('question').style.display = 'none';
-        document.getElementById('answer').style.display = 'none';
+        resultElement.innerText = `Your grade: ${((correctAnswers / mathFacts.length) * 100).toFixed(2)}%`;
+        resultElement.style.display = 'block';
+        document.getElementById('levelButton').style.display = 'block';
+        document.getElementById('level').innerText = level + 1;
+        localStorage.setItem('level', level);
+        clearInterval(timer);
     }
 
     function nextLevel() {
-        // Increment the level
         level++;
-        localStorage.setItem('level', level);
-
-        // Reset variables for the next level
         currentQuestionIndex = 0;
         correctAnswers = 0;
         timerStarted = false;
+        clearInterval(timer);
+        document.getElementById('time').innerText = '40';
+        mathFacts.push(newFacts[newFactIndex]);
+        mathFacts.shift();
+        newFactIndex = (newFactIndex + 1) % newFacts.length;
 
-        // Shuffle the math facts for the next level
         shuffleArray(mathFacts);
-
-        // Display the first question of the next level
         displayQuestion();
-
-        // Hide the level button
-        levelButton.style.display = 'none';
-
-        // Start the timer for the next level
-        startTimer();
+        document.getElementById('level').innerText = level + 1;
+        document.getElementById('levelButton').style.display = 'none';
     }
 
-    // Initial setup
+    // Add event listener to the answer input for the Enter key
+    document.getElementById('answer').addEventListener('keyup', function(event) {
+        if (event.key === 'Enter' && document.getElementById('levelButton').style.display !== 'none') {
+            nextLevel();
+        }
+    });
+
+    shuffleArray(mathFacts);
     displayQuestion();
 </script>
 
